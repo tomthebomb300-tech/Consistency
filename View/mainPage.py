@@ -19,7 +19,7 @@ class MainPage(ctk.CTkFrame):
             width = 0, 
             height = 0,
             fg_color = "transparent",
-            hover_color = "#333333"
+            hover=False
         )
         add_habit_button.pack(anchor = "e", padx = (0,40), pady = (10,10))
 

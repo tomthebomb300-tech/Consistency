@@ -1,7 +1,8 @@
 import customtkinter as ctk
 
 from PIL import Image
-from ctkdateentry import CTkDateEntry
+from ctkdateentry import CTkDateEntry, CTkStringVar
+import datetime
 
 class AddHabit(ctk.CTkToplevel):
     def __init__(self, parent, controller, **kwargs):
@@ -9,7 +10,7 @@ class AddHabit(ctk.CTkToplevel):
         self.controller = controller
     
         self.title_entry = None
-        self.date_entry = None
+        self.date_var = CTkStringVar(self)
         self.description_entry = None
         self.rules_entry = None
         self.complete_colour_entry = None
@@ -23,8 +24,29 @@ class AddHabit(ctk.CTkToplevel):
 
         self.create_title_date_entry()
         self.create_description_entry()
-        self.create_rules_entry()
+        # self.create_rules_entry()
         self.create_colours_entry()
+
+        img = Image.open("./Images/db.png")
+        commit_button = ctk.CTkButton(self, text="Commit", image = ctk.CTkImage(light_image=img, dark_image=img, size = (20,20)), fg_color="#000000", text_color="#938B94", hover = "False", command=self.add_new_habit)
+        commit_button.pack()
+
+    def add_new_habit(self):
+        title = self.title_entry.get()
+        date = datetime.datetime.strptime(self.date_var.get(), "%d/%m/%Y").date()
+        description = self.description_entry.get()
+        com_colour = self.complete_colour_entry.get()
+        incom_colour = self.incomplete_color_entry.get()
+        print(f"title: {title}\ndate: {date}\ndescrition: {description}\ncomplete: {com_colour}\nin-complete: {incom_colour}")
+
+        self.controller.add_habit({
+            "title" : self.title_entry.get(),
+            "start_date" : datetime.datetime.strptime(self.date_var.get(), "%d/%m/%Y").date(),
+            "description" : self.description_entry.get(),
+            "complete_colour" : self.complete_colour_entry.get(),
+            "incomplete_colour" : self.incomplete_color_entry.get()
+        })
+        
 
     def create_title_date_entry(self):
         frame = ctk.CTkFrame(self,fg_color="transparent")
@@ -38,8 +60,7 @@ class AddHabit(ctk.CTkToplevel):
         self.title_entry = ctk.CTkEntry(title_frame,width=120,placeholder_text="Title", fg_color = "transparent", border_width=0)
         self.title_entry.pack(side = "left")
 
-        self.date_entry = CTkDateEntry(frame)
-        self.date_entry.pack()
+        CTkDateEntry(frame, variable=self.date_var).pack()
 
     def create_description_entry(self):
         frame = ctk.CTkFrame(self,fg_color="#1D1D1D")
@@ -70,7 +91,7 @@ class AddHabit(ctk.CTkToplevel):
         img = Image.open("./Images/tick.png")
         image = ctk.CTkLabel(complete_frame, text = "", image = ctk.CTkImage(light_image=img, dark_image=img, size=(20,20)))
         image.pack(side = "left")
-        self.complete_colour_entry = ctk.CTkEntry(complete_frame,width=120,placeholder_text="Complete Hex", fg_color = "transparent", border_width=0)
+        self.complete_colour_entry = ctk.CTkEntry(complete_frame,width=120,placeholder_text="Complete #ffffff", fg_color = "transparent", border_width=0)
         self.complete_colour_entry.pack(side = "left")
 
         incomplete_frame = ctk.CTkFrame(frame,fg_color="#1D1D1D")
@@ -78,5 +99,5 @@ class AddHabit(ctk.CTkToplevel):
         img = Image.open("./Images/x.png")
         image = ctk.CTkLabel(incomplete_frame, text = "", image = ctk.CTkImage(light_image=img, dark_image=img, size=(20,20)))
         image.pack(side = "left")
-        self.incomplete_color_entry = ctk.CTkEntry(incomplete_frame,width=120,placeholder_text="In-Complete Hex", fg_color = "transparent", border_width=0)
+        self.incomplete_color_entry = ctk.CTkEntry(incomplete_frame,width=120,placeholder_text="In-Complete #000000", fg_color = "transparent", border_width=0)
         self.incomplete_color_entry.pack(side = "left")
