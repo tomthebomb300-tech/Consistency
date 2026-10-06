@@ -22,7 +22,7 @@ class Sqlite_DB:
             );
         """)
         self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS CompleteDates (
+            CREATE TABLE IF NOT EXISTS IncompleteDates (
                 date_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 habit_id INTEGER NOT NULL,
                 date TEXT NOT NULL,                
@@ -43,18 +43,34 @@ class Sqlite_DB:
         """, (habit_dict["title"], habit_dict["description"], habit_dict["start_date"], habit_dict["complete_colour"], habit_dict["incomplete_colour"]))
         self.conn.commit()
 
+    def remove_dates(self, habit_id):
+        self.cursor.execute("""DELETE FROM IncompleteDates WHERE habit_id = ?;""", (habit_id,))
+        self.conn.commit()
+
+
+    def add_dates(self, habit_id, dates):
+        if(len(dates) == 0):
+            return
+
+        for date in dates:
+            self.cursor.execute("""INSERT INTO IncompleteDates (habit_id, date) VALUES (?, ?)""", (habit_id, date))
+        self.conn.commit()
+        
+
+        
+
     def get_habits_dict(self):
         query = """SELECT * FROM Habits"""
         habits_df = pd.read_sql_query(query, self.conn)
         habits_df["start_date"] = pd.to_datetime(habits_df["start_date"]).dt.date
         habits_dict = habits_df.set_index("habit_id").to_dict("index")
         
-        query = """SELECT * FROM CompleteDates"""
+        query = """SELECT * FROM IncompleteDates"""
         dates_df = pd.read_sql_query(query, self.conn)
         dates_df["date"] = pd.to_datetime(dates_df["date"]).dt.date
 
         for habit_id in habits_dict:
             completed_dates_df = dates_df[dates_df["habit_id"] == habit_id]
-            habits_dict[habit_id]["dates_complete"] = completed_dates_df["date"].to_list()
+            habits_dict[habit_id]["dates_incomplete"] = completed_dates_df["date"].to_list()
         
         return habits_dict

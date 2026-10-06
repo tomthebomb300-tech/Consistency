@@ -10,26 +10,27 @@ class HabitChart(ctk.CTkFrame):
     def __init__(self, parent, habit, **kwargs):
         super().__init__(parent, **kwargs)
 
-        print(habit)
+        self.habit = habit
+        self.dates_changed = False
 
-        self.create_heading(self, habit)
-        self.create_graphic(self, habit)
+        self.create_heading(self)
+        self.create_graphic(self)
 
-    def create_heading(self, parent, habit):
+    def create_heading(self, parent):
         header = ctk.CTkFrame(parent)
         header.pack(fill = "x", padx = (22,0))
 
-        title = ctk.CTkLabel(header,text=habit["title"],font=("Arial", 20),text_color="white")
+        title = ctk.CTkLabel(header,text=self.habit["title"],font=("Arial", 20),text_color="white")
         title.pack(side = "left")
 
-        description = ctk.CTkLabel(header,text="   -   {0}".format(habit["description"]),font=("Arial", 16),text_color="white")
+        description = ctk.CTkLabel(header,text="   -   {0}".format(self.habit["description"]),font=("Arial", 16),text_color="white")
         description.pack(side = "left")
 
         percentage = ctk.CTkLabel(header,text="{0}%".format(89),font=("Arial", 16),text_color="white")
         percentage.pack(anchor = "e", padx = (20,0))
         
 
-    def create_graphic(self, parent, habit):
+    def create_graphic(self, parent):
         graphic_frame = ctk.CTkFrame(parent, fg_color="transparent")
         graphic_frame.pack()
 
@@ -53,10 +54,10 @@ class HabitChart(ctk.CTkFrame):
         canvas = tk.Canvas(graphic_frame, width = canvas_width, height = canvas_height, bg = "#000000", highlightthickness = 0)
         canvas.pack()
 
-        canvas.bind("<Button-1>", lambda event: self.on_canvas_click(event, square_length, padding, habit, canvas))
+        canvas.bind("<Button-1>", lambda event: self.on_canvas_click(event, square_length, padding, canvas))
 
-        date_index = habit["start_date"]
-        ri = habit["start_date"].weekday()
+        date_index = self.habit["start_date"]
+        ri = self.habit["start_date"].weekday()
         ci = 0
 
         while(ci < max_cols):
@@ -69,9 +70,9 @@ class HabitChart(ctk.CTkFrame):
                 x2 = x1 + square_length
                 y2 = y1 + square_length
 
-                colour = habit["incomplete_colour"]
-                if(date_index in habit["dates_complete"]):
-                    colour = habit["complete_colour"]
+                colour = self.habit["complete_colour"]
+                if(date_index in self.habit["dates_incomplete"]):
+                    colour = self.habit["incomplete_colour"]
 
                 canvas.create_rectangle(x1, y1, x2, y2, fill = colour, outline = "#000000", width = 1, tags = f"rect_{ri}_{ci}")
 
@@ -81,7 +82,7 @@ class HabitChart(ctk.CTkFrame):
                 ri+=1
             ci+=1
 
-    def on_canvas_click(self, event, square_length, padding, habit, canvas):
+    def on_canvas_click(self, event, square_length, padding, canvas):
         #map to canvas coords
         dec_ci = round(event.x/(square_length+padding),2)+1
         dec_ri = round(event.y/(square_length+padding),2)+1
@@ -94,17 +95,23 @@ class HabitChart(ctk.CTkFrame):
             ri = math.floor(dec_ri)-1
 
             #get clicked squares date
-            date = habit["start_date"] + datetime.timedelta(days=7*ci+ri-habit["start_date"].weekday())
+            date = self.habit["start_date"] + datetime.timedelta(days=7*ci+ri-self.habit["start_date"].weekday())
             #check valid if cell active
-            if(date >= habit["start_date"] and date <= datetime.datetime.now().date()):
+            if(date >= self.habit["start_date"] and date <= datetime.datetime.now().date()):
+                self.dates_changed = True
                 x1 = padding + ci * (square_length + padding)
                 y1 = padding + ri * (square_length + padding)
                 x2 = x1 + square_length
                 y2 = y1 + square_length
-                
+
                 colour = "#000000"
-                if(date in habit["dates_complete"]):
-                    colour = habit["incomplete_colour"]
+                if(date in self.habit["dates_incomplete"]):
+                    self.habit["dates_incomplete"].remove(date)
+                    colour = self.habit["complete_colour"]
                 else:
-                    colour = habit["complete_colour"]
+                    self.habit["dates_incomplete"].append(date)
+                    colour = self.habit["incomplete_colour"]
                 canvas.create_rectangle(x1, y1, x2, y2, fill = colour, outline = "#000000", width = 1, tags = f"rect_{ri}_{ci}")
+
+    def save_changes(self, save_func):
+        save_func(self.habit, False, self.dates_changed)

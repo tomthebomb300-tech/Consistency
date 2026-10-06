@@ -10,6 +10,7 @@ class Controller:
 
     def close_application(self):
         print("Ending")
+        self.window.close()
         self.window.destroy()
 
     def display_main_page(self):
@@ -20,3 +21,11 @@ class Controller:
 
     def get_habits_dict(self):
         return self.db.get_habits_dict()
+
+    def save_changes(self, habit, habit_changed, dates_changed):
+        if(habit_changed):
+            pass
+
+        if(dates_changed):
+            self.db.remove_dates(habit["habit_id"])
+            self.db.add_dates(habit["habit_id"], habit["dates_incomplete"])

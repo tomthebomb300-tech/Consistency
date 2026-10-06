@@ -16,5 +16,8 @@ class Window(ctk.CTk):
     def display_main_page(self):
         self.main_page.pack(fill = "both", expand = True)
 
+    def close(self):
+        self.main_page.close()
+
     def run(self):
         self.mainloop()
