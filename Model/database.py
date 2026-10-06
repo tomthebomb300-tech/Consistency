@@ -42,3 +42,19 @@ class Sqlite_DB:
             VALUES (?, ?, ?, ?, ?)
         """, (habit_dict["title"], habit_dict["description"], habit_dict["start_date"], habit_dict["complete_colour"], habit_dict["incomplete_colour"]))
         self.conn.commit()
+
+    def get_habits_dict(self):
+        query = """SELECT * FROM Habits"""
+        habits_df = pd.read_sql_query(query, self.conn)
+        habits_df["start_date"] = pd.to_datetime(habits_df["start_date"]).dt.date
+        habits_dict = habits_df.set_index("habit_id").to_dict("index")
+        
+        query = """SELECT * FROM CompleteDates"""
+        dates_df = pd.read_sql_query(query, self.conn)
+        dates_df["date"] = pd.to_datetime(dates_df["date"]).dt.date
+
+        for habit_id in habits_dict:
+            completed_dates_df = dates_df[dates_df["habit_id"] == habit_id]
+            habits_dict[habit_id]["dates_complete"] = completed_dates_df["date"].to_list()
+        
+        return habits_dict

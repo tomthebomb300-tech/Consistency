@@ -22,9 +22,17 @@ class MainPage(ctk.CTkFrame):
             hover=False
         )
         add_habit_button.pack(anchor = "e", padx = (0,40), pady = (10,10))
+        self.load_habit_charts()
 
-        habit_chart = HabitChart(self, None, fg_color = "transparent")
-        habit_chart.pack()
+
+    def load_habit_charts(self):
+        habits_dict = self.controller.get_habits_dict()
+        for key in habits_dict:
+            habit_dict = habits_dict[key]
+            habit_dict["habit_id"] = key
+            habit_chart = HabitChart(self, habit_dict, fg_color = "transparent")
+            habit_chart.pack()
+
 
     def open_add_habit(self):
         add_habit = AddHabit(self, self.controller)

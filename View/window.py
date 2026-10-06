@@ -9,6 +9,7 @@ class Window(ctk.CTk):
 
         self.title(name)
         self.geometry("{0}x{1}".format(width, height))
+        self.protocol("WM_DELETE_WINDOW", self.controller.close_application)
 
         self.main_page = MainPage(self, self.controller)
 

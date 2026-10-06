@@ -1,6 +1,6 @@
 import customtkinter as ctk
 import tkinter as tk
-import random
+import math
 
 import datetime
 
@@ -10,22 +10,7 @@ class HabitChart(ctk.CTkFrame):
     def __init__(self, parent, habit, **kwargs):
         super().__init__(parent, **kwargs)
 
-        start = datetime.datetime(2026, 7, 1).date()
-        date = start
-        dates_complete = []
-        while(date < datetime.datetime.now().date()):
-            date = date + datetime.timedelta(days=1)
-            if(random.randint(1,9) > 4):
-                dates_complete.append(date)
-
-        habit = {
-            "title" : "Drink Water",
-            "description" : "3L of water",
-            "start_date" : start,
-            "dates_complete" : dates_complete,
-            "complete_colour" : "#12af0d",
-            "incomplete_colour" : "#b41919"
-        }
+        print(habit)
 
         self.create_heading(self, habit)
         self.create_graphic(self, habit)
@@ -68,6 +53,8 @@ class HabitChart(ctk.CTkFrame):
         canvas = tk.Canvas(graphic_frame, width = canvas_width, height = canvas_height, bg = "#000000", highlightthickness = 0)
         canvas.pack()
 
+        canvas.bind("<Button-1>", lambda event: self.on_canvas_click(event, square_length, padding, habit, canvas))
+
         date_index = habit["start_date"]
         ri = habit["start_date"].weekday()
         ci = 0
@@ -82,14 +69,42 @@ class HabitChart(ctk.CTkFrame):
                 x2 = x1 + square_length
                 y2 = y1 + square_length
 
-                colour = habit["complete_colour"]
+                colour = habit["incomplete_colour"]
                 if(date_index in habit["dates_complete"]):
-                    colour = habit["incomplete_colour"]
+                    colour = habit["complete_colour"]
 
                 canvas.create_rectangle(x1, y1, x2, y2, fill = colour, outline = "#000000", width = 1, tags = f"rect_{ri}_{ci}")
 
                 date_index = date_index + datetime.timedelta(days=1)
-                if(date_index == datetime.datetime.now().date()): 
+                if(date_index > datetime.datetime.now().date()): 
                     ci = max_cols
                 ri+=1
             ci+=1
+
+    def on_canvas_click(self, event, square_length, padding, habit, canvas):
+        #map to canvas coords
+        dec_ci = round(event.x/(square_length+padding),2)+1
+        dec_ri = round(event.y/(square_length+padding),2)+1
+        valid_dec_ci_coord = round(dec_ci%math.floor(dec_ci),2) > (padding/(square_length+padding))
+        valid_dec_ri_coord = round(dec_ri%math.floor(dec_ri),2) > (padding/(square_length+padding))
+
+        #check valid cell click
+        if(valid_dec_ci_coord and valid_dec_ri_coord):
+            ci = math.floor(dec_ci)-1
+            ri = math.floor(dec_ri)-1
+
+            #get clicked squares date
+            date = habit["start_date"] + datetime.timedelta(days=7*ci+ri-habit["start_date"].weekday())
+            #check valid if cell active
+            if(date >= habit["start_date"] and date <= datetime.datetime.now().date()):
+                x1 = padding + ci * (square_length + padding)
+                y1 = padding + ri * (square_length + padding)
+                x2 = x1 + square_length
+                y2 = y1 + square_length
+                
+                colour = "#000000"
+                if(date in habit["dates_complete"]):
+                    colour = habit["incomplete_colour"]
+                else:
+                    colour = habit["complete_colour"]
+                canvas.create_rectangle(x1, y1, x2, y2, fill = colour, outline = "#000000", width = 1, tags = f"rect_{ri}_{ci}")
