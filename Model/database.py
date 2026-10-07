@@ -43,6 +43,11 @@ class Sqlite_DB:
         """, (habit_dict["title"], habit_dict["description"], habit_dict["start_date"], habit_dict["complete_colour"], habit_dict["incomplete_colour"]))
         self.conn.commit()
 
+    def update_habit(self, habit):
+        query = """UPDATE Habits SET title = ?, description = ?, start_date = ?, complete_colour = ?, incomplete_colour = ? WHERE habit_id = ?;"""
+        self.cursor.execute(query, (habit["title"], habit["description"], habit["start_date"], habit["complete_colour"], habit["incomplete_colour"], habit["habit_id"]))
+        self.conn.commit()
+
     def remove_dates(self, habit_id):
         self.cursor.execute("""DELETE FROM IncompleteDates WHERE habit_id = ?;""", (habit_id,))
         self.conn.commit()

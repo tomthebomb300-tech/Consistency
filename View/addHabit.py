@@ -6,7 +6,7 @@ import datetime
 
 class AddHabit(ctk.CTkToplevel):
     def __init__(self, parent, controller, **kwargs):
-        super().__init__(parent)
+        super().__init__(parent, **kwargs)
         self.controller = controller
     
         self.title_entry = None
@@ -32,13 +32,6 @@ class AddHabit(ctk.CTkToplevel):
         commit_button.pack()
 
     def add_new_habit(self):
-        title = self.title_entry.get()
-        date = datetime.datetime.strptime(self.date_var.get(), "%d/%m/%Y").date()
-        description = self.description_entry.get()
-        com_colour = self.complete_colour_entry.get()
-        incom_colour = self.incomplete_color_entry.get()
-        print(f"title: {title}\ndate: {date}\ndescrition: {description}\ncomplete: {com_colour}\nin-complete: {incom_colour}")
-
         self.controller.add_habit({
             "title" : self.title_entry.get(),
             "start_date" : datetime.datetime.strptime(self.date_var.get(), "%d/%m/%Y").date(),

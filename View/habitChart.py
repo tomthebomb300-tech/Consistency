@@ -1,40 +1,67 @@
 import customtkinter as ctk
 import tkinter as tk
 import math
-
 import datetime
 
+from PIL import Image
+
+from View.editHabit import EditHabit
 
 class HabitChart(ctk.CTkFrame):
 
     def __init__(self, parent, habit, **kwargs):
         super().__init__(parent, **kwargs)
 
-        self.habit = habit
         self.dates_changed = False
+        self.habit_changed = False
+        self.habit = habit
+        self.create_heading(self)
+        self.create_graphic(self)
+        
 
+    def edit_habit(self):
+        self.habit_changed = True
+        edit_habit = EditHabit(self, self.habit, self.display_habit)
+
+    def display_habit(self, habit):
+        self.habit = habit
+        self.header.pack_forget()
+        self.graphic_frame.pack_forget()
         self.create_heading(self)
         self.create_graphic(self)
 
     def create_heading(self, parent):
-        header = ctk.CTkFrame(parent)
-        header.pack(fill = "x", padx = (22,0))
+        self.header = ctk.CTkFrame(parent)
+        self.header.pack(fill = "x", padx = (22,0))
 
-        title = ctk.CTkLabel(header,text=self.habit["title"],font=("Arial", 20),text_color="white")
+        title = ctk.CTkLabel(self.header,text=self.habit["title"],font=("Arial", 20),text_color="white")
         title.pack(side = "left")
 
-        description = ctk.CTkLabel(header,text="   -   {0}".format(self.habit["description"]),font=("Arial", 16),text_color="white")
+        description = ctk.CTkLabel(self.header,text="   -   {0}".format(self.habit["description"]),font=("Arial", 16),text_color="white")
         description.pack(side = "left")
 
-        percentage = ctk.CTkLabel(header,text="{0}%".format(89),font=("Arial", 16),text_color="white")
-        percentage.pack(anchor = "e", padx = (20,0))
+        img = Image.open("./Images/edit.png")
+        edit_habit_button = ctk.CTkButton(
+            self.header, 
+            text="", 
+            image=ctk.CTkImage(light_image=img, dark_image=img, size = (16,16)), 
+            command=self.edit_habit, 
+            width = 0, 
+            height = 0,
+            fg_color = "transparent",
+            hover=False
+        )
+        edit_habit_button.pack(side = "left", padx = (20,0))
+
+        percentage = ctk.CTkLabel(self.header,text="{0}%".format(89),font=("Arial", 16),text_color="white")
+        percentage.pack(anchor = "e")
         
 
     def create_graphic(self, parent):
-        graphic_frame = ctk.CTkFrame(parent, fg_color="transparent")
-        graphic_frame.pack()
+        self.graphic_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        self.graphic_frame.pack()
 
-        labels = ctk.CTkFrame(graphic_frame)
+        labels = ctk.CTkFrame(self.graphic_frame)
         labels.pack(side = "left", fill = "y")
 
         ctk.CTkLabel(labels,text="Mon",font=("Arial", 10),text_color="#aa9a9a", anchor = "n").pack(pady = (3,0))
@@ -51,7 +78,7 @@ class HabitChart(ctk.CTkFrame):
         canvas_width = max_cols * (padding + square_length) + padding
         canvas_height = rows * (padding + square_length) + padding
 
-        canvas = tk.Canvas(graphic_frame, width = canvas_width, height = canvas_height, bg = "#000000", highlightthickness = 0)
+        canvas = tk.Canvas(self.graphic_frame, width = canvas_width, height = canvas_height, bg = "#000000", highlightthickness = 0)
         canvas.pack()
 
         canvas.bind("<Button-1>", lambda event: self.on_canvas_click(event, square_length, padding, canvas))
@@ -114,4 +141,4 @@ class HabitChart(ctk.CTkFrame):
                 canvas.create_rectangle(x1, y1, x2, y2, fill = colour, outline = "#000000", width = 1, tags = f"rect_{ri}_{ci}")
 
     def save_changes(self, save_func):
-        save_func(self.habit, False, self.dates_changed)
+        save_func(self.habit, self.habit_changed, self.dates_changed)

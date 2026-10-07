@@ -9,7 +9,6 @@ class Controller:
         self.window.run()        
 
     def close_application(self):
-        print("Ending")
         self.window.close()
         self.window.destroy()
 
@@ -24,7 +23,7 @@ class Controller:
 
     def save_changes(self, habit, habit_changed, dates_changed):
         if(habit_changed):
-            pass
+            self.db.update_habit(habit)
 
         if(dates_changed):
             self.db.remove_dates(habit["habit_id"])
