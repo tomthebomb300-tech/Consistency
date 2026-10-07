@@ -5,9 +5,8 @@ from ctkdateentry import CTkDateEntry, CTkStringVar
 import datetime
 
 class AddHabit(ctk.CTkToplevel):
-    def __init__(self, parent, controller, **kwargs):
+    def __init__(self, parent, add_habit_func, **kwargs):
         super().__init__(parent, **kwargs)
-        self.controller = controller
     
         self.title_entry = None
         self.date_var = CTkStringVar(self)
@@ -28,11 +27,11 @@ class AddHabit(ctk.CTkToplevel):
         self.create_colours_entry()
 
         img = Image.open("./Images/db.png")
-        commit_button = ctk.CTkButton(self, text="Commit", image = ctk.CTkImage(light_image=img, dark_image=img, size = (20,20)), fg_color="#000000", text_color="#938B94", hover = "False", command=self.add_new_habit)
+        commit_button = ctk.CTkButton(self, text="Commit", image = ctk.CTkImage(light_image=img, dark_image=img, size = (20,20)), fg_color="#000000", text_color="#938B94", hover = "False", command=lambda: self.add_new_habit(add_habit_func))
         commit_button.pack()
 
-    def add_new_habit(self):
-        self.controller.add_habit({
+    def add_new_habit(self, add_habit_func):
+        add_habit_func({
             "title" : self.title_entry.get(),
             "start_date" : datetime.datetime.strptime(self.date_var.get(), "%d/%m/%Y").date(),
             "description" : self.description_entry.get(),

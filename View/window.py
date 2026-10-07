@@ -16,6 +16,9 @@ class Window(ctk.CTk):
     def display_main_page(self):
         self.main_page.pack(fill = "both", expand = True)
 
+    def update_app(self):
+        self.main_page.update_page()
+
     def close(self):
         self.main_page.close()
 

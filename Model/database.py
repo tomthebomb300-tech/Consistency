@@ -52,6 +52,11 @@ class Sqlite_DB:
         self.cursor.execute("""DELETE FROM IncompleteDates WHERE habit_id = ?;""", (habit_id,))
         self.conn.commit()
 
+    def remove_habit(self, habit_id):
+        self.remove_dates(habit_id)
+        self.cursor.execute("""DELETE FROM Habits WHERE habit_id = ?;""", (habit_id,))
+        self.conn.commit()
+
 
     def add_dates(self, habit_id, dates):
         if(len(dates) == 0):

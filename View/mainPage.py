@@ -23,12 +23,19 @@ class MainPage(ctk.CTkFrame):
         )
         add_habit_button.pack(anchor = "e", padx = (0,40), pady = (10,10))
 
-        self.habit_charts = HabitCharts(self, self.controller.get_habits_dict(), fg_color = "transparent")
+        self.create_habit_charts()
+
+
+    def create_habit_charts(self):
+        self.habit_charts = HabitCharts(self, self.controller.get_habits_dict(), self.controller.remove_habit, fg_color = "transparent")
         self.habit_charts.pack()
 
+    def update_page(self):
+        self.habit_charts.pack_forget()
+        self.create_habit_charts()
 
     def open_add_habit(self):
-        add_habit = AddHabit(self, self.controller)
+        add_habit = AddHabit(self, self.controller.add_habit)
 
     def close(self):
         self.habit_charts.save_changes(self.controller.save_changes)
