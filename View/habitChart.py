@@ -153,7 +153,10 @@ class HabitChart(ctk.CTkFrame):
                     colour = self.habit["incomplete_colour"]
                     
                 num_days = (datetime.datetime.now().date()-self.habit["start_date"]).days
-                self.percentage_label.configure(text="{0}%".format(round((num_days-len(self.habit["dates_incomplete"]))/num_days,4)*100))
+                if(num_days > 0):
+                    self.percentage_label.configure(text="{0}%".format(round((num_days-len(self.habit["dates_incomplete"]))/num_days,4)*100))
+                else:
+                    self.percentage_label.configure(text = "0%")
                 canvas.create_rectangle(x1, y1, x2, y2, fill = colour, outline = "#000000", width = 1, tags = f"rect_{ri}_{ci}")
 
     def save_changes(self, save_func):

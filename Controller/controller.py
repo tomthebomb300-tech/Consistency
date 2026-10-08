@@ -16,8 +16,7 @@ class Controller:
         self.window.display_main_page()
 
     def add_habit(self, habit_dict):
-        self.db.add_habit(habit_dict)
-        self.window.update_app()
+        return self.db.add_habit_return_habit_id(habit_dict)
 
     def get_habits_dict(self):
         return self.db.get_habits_dict()
