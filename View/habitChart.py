@@ -53,8 +53,18 @@ class HabitChart(ctk.CTkFrame):
         )
         edit_habit_button.pack(side = "left", padx = (20,0))
 
-        percentage = ctk.CTkLabel(self.header,text="{0}%".format(89),font=("Arial", 16),text_color="white")
-        percentage.pack(anchor = "e")
+        num_days = (datetime.datetime.now().date()-self.habit["start_date"]).days
+        if(num_days < 0):
+            num_days = 0
+
+        num_days_label = ctk.CTkLabel(self.header,text="{0} days".format(num_days),font=("Arial", 16),text_color="white")
+        num_days_label.pack(side = "right", padx = (20,0))
+
+        percentage = 0
+        if(num_days > 0):
+            percentage = round((num_days-len(self.habit["dates_incomplete"]))/num_days,4)*100
+        percentage_label = ctk.CTkLabel(self.header,text="{0}%".format(percentage),font=("Arial", 16),text_color="white")
+        percentage_label.pack(anchor = "e")
         
 
     def create_graphic(self, parent):
@@ -80,6 +90,9 @@ class HabitChart(ctk.CTkFrame):
 
         canvas = tk.Canvas(self.graphic_frame, width = canvas_width, height = canvas_height, bg = "#000000", highlightthickness = 0)
         canvas.pack()
+
+        if(self.habit["start_date"] > datetime.datetime.now().date()):
+            return
 
         canvas.bind("<Button-1>", lambda event: self.on_canvas_click(event, square_length, padding, canvas))
 
