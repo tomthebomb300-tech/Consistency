@@ -28,7 +28,7 @@ class MainPage(ctk.CTkFrame):
 
     def create_habit_charts(self):
         self.habit_charts = HabitCharts(self, self.controller.get_habits_dict(), self.controller.remove_habit, fg_color = "transparent")
-        self.habit_charts.pack()
+        self.habit_charts.pack(fill = "both", expand = True)
 
     def update_page(self):
         self.habit_charts.pack_forget()

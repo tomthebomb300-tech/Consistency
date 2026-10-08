@@ -4,7 +4,7 @@ from PIL import Image
 
 from View.habitChart import HabitChart
 
-class HabitCharts(ctk.CTkFrame):
+class HabitCharts(ctk.CTkScrollableFrame):
     def __init__(self, parent, habits_dict, remove_habit_func, **kwargs):
         super().__init__(parent, **kwargs)
         self.habit_charts = []
